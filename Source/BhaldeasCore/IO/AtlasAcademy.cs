@@ -100,7 +100,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
                             break;
 
                         default:
-                            throw new InvalidDataException($"{milliValue}は知らない相性数値です");
+                            throw new InvalidDataException($"{milliValue}は知らないクラス相性数値です");
                     }
                 }
 
@@ -174,7 +174,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         #region 天地人 星獣
         public async Task<IEnumerable<Attribute>> ImportAttributeAsync()
         {
-            var result = new List<Class>();
+            var result = new List<Attribute>();
 
             /*
              * {
@@ -217,37 +217,31 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
                     switch (milliValue)
                     {
-                        case 500:
-                            sourceClass.Attack05NameList.Add(targetName);
+                        case 900:
+                            sourceAttr.Attack09NameList.Add(targetName);
                             break;
                         case 1000:
                             break;
-                        case 1200:
-                            sourceClass.Attack12NameList.Add(targetName);
-                            break;
-                        case 1500:
-                            sourceClass.Attack15NameList.Add(targetName);
-                            break;
-                        case 2000:
-                            sourceClass.Attack20NameList.Add(targetName);
+                        case 1100:
+                            sourceAttr.Attack11NameList.Add(targetName);
                             break;
 
                         default:
-                            throw new InvalidDataException($"{milliValue}は知らない相性数値です");
+                            throw new InvalidDataException($"{milliValue}は知らない属性相性数値です");
                     }
                 }
 
                 var duplication = result.Any(a => a.Name == sourceName);
                 if (duplication)
-                    throw new InvalidDataException($"{sourceName}のクラスが複数存在します");
+                    throw new InvalidDataException($"{sourceName}の属性が複数存在します");
 
-                result.Add(sourceClass);
+                result.Add(sourceAttr);
             }
 
-            // 2. 全てのクラスの相性表をインスタンスに変換
-            foreach (var klass in result)
+            // 2. 全ての属性相性表をインスタンスに変換
+            foreach (var attr in result)
             {
-                klass.UpdateAttackClass(result);
+                attr.UpdateAttackClass(result);
             }
 
             return result;

@@ -61,45 +61,53 @@ namespace Bhaldeas.Core.Attributes
         private void setDisplayAttribute(string name)
         {
             var lower = Name.ToLower();
-            // 雰囲気で振り分ける
-            if (lower.Contains("saber"))
-                DisplayClass = ClassType.Saber;
-            else if (lower.Contains("archer"))
-                DisplayClass = ClassType.Archer;
-            else if (lower.Contains("lancer"))
-                DisplayClass = ClassType.Lancer;
-            else if (lower.Contains("rider"))
-                DisplayClass = ClassType.Rider;
-            else if (lower.Contains("caster"))
-                DisplayClass = ClassType.Caster;
-            else if (lower.Contains("assassin"))
-                DisplayClass = ClassType.Assassin;
-            else if (lower.Contains("berserker"))
-                DisplayClass = ClassType.Berserker;
-            else if (lower.Contains("shielder"))
-                DisplayClass = ClassType.Shielder;
-            else if (lower.Contains("ruler"))
-                DisplayClass = ClassType.Ruler;
-            else if (lower.Contains("alterego"))
-                DisplayClass = ClassType.Alteriego;
-            else if (lower.Contains("avenger"))
-                DisplayClass = ClassType.Avenger;
-            else if (lower.Contains("mooncancer"))
-                DisplayClass = ClassType.MoonCancer;
-            else if (lower.Contains("foreigner"))
-                DisplayClass = ClassType.Foreigner;
-            else if (lower.Contains("pretender"))
-                DisplayClass = ClassType.Pretender;
-            else if (lower.Contains("beast"))
-                DisplayClass = ClassType.Beast;
-            else if (lower.Contains("demongodpillar"))
-                DisplayClass = ClassType.Beast;
-            else if (lower.Contains("uolgamarie"))
-                DisplayClass = ClassType.Beast;
-            else
+            // 振り分ける
+            switch (lower)
             {
-                Console.WriteLine($"setDisplayClass: {Name} unknown class name");
-                DisplayClass = ClassType.Unknown;
+                case "sky":
+                    DisplayAttribute = AttributeType.Sky;
+                    break;
+                case "earth":
+                    DisplayAttribute = AttributeType.Earth;
+                    break;
+                case "human":
+                    DisplayAttribute = AttributeType.Human;
+                    break;
+
+                case "star":
+                    DisplayAttribute = AttributeType.Star;
+                    break;
+                case "beast":
+                    DisplayAttribute = AttributeType.Beast;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException($"知らない属性({name})です");
+
+            }
+        }
+
+        /// <summary>
+        /// インポートで取得した際は名前リストしかない状態のものを更新して属性リストにする
+        /// </summary>
+        /// <param name="allAttributes">属性情報が全て入ったリスト</param>
+        public void UpdateAttackClass(IEnumerable<Attribute> allAttributes)
+        {
+            updateAttackAttributeUnit(allAttributes, Attack09NameList, Attack09List);
+            updateAttackAttributeUnit(allAttributes, Attack11NameList, Attack11List);
+        }
+
+        private void updateAttackAttributeUnit(IEnumerable<Attribute> allAttributes, List<string> names, List<Attribute> target)
+        {
+            target.Clear();
+
+            foreach (string name in names)
+            {
+                var attr = allAttributes.FirstOrDefault(c => c.Name == name);
+                if (attr == null)
+                    throw new InvalidOperationException($"updateAttackAttributeUnit: {name}は知らない属性です");
+
+                target.Add(attr);
             }
         }
     }

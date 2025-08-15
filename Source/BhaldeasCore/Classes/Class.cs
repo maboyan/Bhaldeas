@@ -145,7 +145,7 @@ namespace Bhaldeas.Core.Classes
         }
 
         /// <summary>
-        /// JSONからデシリアライズで持ってきた際など名前リストしかない状態のものを更新してクラスリストにする
+        /// インポートで取得した際は名前リストしかない状態のものを更新してクラスリストにする
         /// </summary>
         /// <param name="allClasses">クラス情報が全て入ったリスト</param>
         public void UpdateAttackClass(IEnumerable<Class> allClasses)
@@ -165,7 +165,7 @@ namespace Bhaldeas.Core.Classes
                 var klass = allClasses.FirstOrDefault(c => c.Name == name);
                 if (klass == null)
                 {
-                    Console.WriteLine($"refreshAffinityClassUnit: {name} unknown class");
+                    Console.WriteLine($"updateAttackClassUnit: {name} unknown class");
                     continue;
                 }
 
