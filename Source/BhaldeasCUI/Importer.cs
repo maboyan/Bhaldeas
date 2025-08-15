@@ -14,6 +14,7 @@ namespace BhaldeasCUI
         None,
 
         Class,
+        Attribute,
         Servant,
     }
 
@@ -45,6 +46,9 @@ namespace BhaldeasCUI
                 case ImportMode.Class:
                     return await importClassAsync(path);
 
+                case ImportMode.Attribute:
+                    return await importAttributeAsync(path);
+
                 case ImportMode.Servant:
                     throw new NotImplementedException();
             }
@@ -63,7 +67,7 @@ namespace BhaldeasCUI
                 // ImportしたものをJSONで保存
                 var local = new LocalFile()
                 {
-                    ClassFilePath = path
+                    FilePath = path
                 };
                 await local.ExportClassAsync(db.Classes);
             }
@@ -74,7 +78,30 @@ namespace BhaldeasCUI
             }
 
             return 0;
+        }
 
+        private async Task<int> importAttributeAsync(string path)
+        {
+            var db = new Database();
+            try
+            {
+                var aa = new AtlasAcademy();
+                await db.ImportAttributes(aa);
+
+                // ImportしたものをJSONで保存
+                var local = new LocalFile()
+                {
+                    FilePath = path
+                };
+                await local.ExportAttributeAsync(db.Attributes);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 1;
+            }
+
+            return 0;
         }
     }
 }

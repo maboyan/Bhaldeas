@@ -23,7 +23,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
         private static readonly string BASE_URL = @"https://api.atlasacademy.io/export";
 
-        #region クラス
+        #region IClassImporter
         /// <summary>
         /// サーバンドのクラス情報を取得してクラスの相性リストと攻撃倍率情報を取得する
         /// </summary>
@@ -171,7 +171,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         }
         #endregion
 
-        #region 天地人 星獣
+        #region IAttributeImporter
         public async Task<IEnumerable<Attribute>> ImportAttributeAsync()
         {
             var result = new List<Attribute>();
@@ -241,7 +241,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             // 2. 全ての属性相性表をインスタンスに変換
             foreach (var attr in result)
             {
-                attr.UpdateAttackClass(result);
+                attr.UpdateAttackAttribute(result);
             }
 
             return result;

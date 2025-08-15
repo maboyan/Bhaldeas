@@ -2,7 +2,7 @@
   "profiles": {
     "BhaldeasCUI": {
       "commandName": "Project",
-      "commandLineArgs": "-m Import -d Class"
+      "commandLineArgs": "-m Import -d Attribute -o attributes.json"
     }
   }
 }

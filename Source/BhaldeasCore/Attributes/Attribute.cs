@@ -91,7 +91,7 @@ namespace Bhaldeas.Core.Attributes
         /// インポートで取得した際は名前リストしかない状態のものを更新して属性リストにする
         /// </summary>
         /// <param name="allAttributes">属性情報が全て入ったリスト</param>
-        public void UpdateAttackClass(IEnumerable<Attribute> allAttributes)
+        public void UpdateAttackAttribute(IEnumerable<Attribute> allAttributes)
         {
             updateAttackAttributeUnit(allAttributes, Attack09NameList, Attack09List);
             updateAttackAttributeUnit(allAttributes, Attack11NameList, Attack11List);
