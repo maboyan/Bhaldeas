@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BhaldeasCUI": {
+      "commandName": "Project",
+      "commandLineArgs": "-m Import -d Class"
+    }
+  }
+}
