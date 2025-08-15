@@ -101,7 +101,7 @@ namespace Bhaldeas.Core.Classes
         /// <param name="name"></param>
         private void setDisplayClass(string name)
         {
-            var lower = Name.ToLower();
+            var lower = name.ToLower();
             // 雰囲気で振り分ける
             if (lower.Contains("saber"))
                 DisplayClass = ClassType.Saber;

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Attribute = Bhaldeas.Core.Attributes.Attribute;
 
 namespace Bhaldeas.Core.Servants.DatabaseIO
 {
@@ -16,24 +17,13 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
     /// からAPIを叩いて情報を取得するクラス
     /// </summary>
     public class AtlasAcademy
-        : IClassImporter
+        : IClassImporter, IAttributeImporter
     {
         private static HttpClient client = new HttpClient();
 
         private static readonly string BASE_URL = @"https://api.atlasacademy.io/export";
 
         #region クラス
-        /// <summary>
-        /// サーヴァントのクラス情報を出力することはできないので未実装
-        /// </summary>
-        /// <param name="classes"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public Task ExportClassAsync(IEnumerable<Class> classes)
-        {
-            throw new InvalidOperationException("AtlasAcademyでExportは実装できません");
-        }
-
         /// <summary>
         /// サーバンドのクラス情報を取得してクラスの相性リストと攻撃倍率情報を取得する
         /// </summary>
@@ -167,6 +157,105 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
                 klass.AttackMilliRate = value;
             }
+        }
+
+        /// <summary>
+        /// サーヴァントのクラス情報を出力することはできないので未実装
+        /// </summary>
+        /// <param name="classes"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task ExportClassAsync(IEnumerable<Class> classes)
+        {
+            throw new InvalidOperationException("AtlasAcademyでExportは実装できません");
+        }
+        #endregion
+
+        #region 天地人 星獣
+        public async Task<IEnumerable<Attribute>> ImportAttributeAsync()
+        {
+            var result = new List<Class>();
+
+            /*
+             * {
+             *   "human": {
+             *     "human": 1000,
+             *     "sky": 1100,
+             *     ...
+             *   },
+             *   "sky": {
+             *     "human": 900,
+             *     "sky": 1000,
+             *     ...
+             *   },
+             *   ...
+             * }
+             * 
+             * のようなJSONを想定
+             */
+
+            var url = $"{BASE_URL}/JP/NiceAttributeRelation.json";
+            var res = await client.GetAsync(url);
+            res.EnsureSuccessStatusCode();
+
+            using var content = res.Content;
+            using var stream = await content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+            var root = document.RootElement;
+
+            // 1. 属性相性を文字列ベースで作成
+            foreach (var property in root.EnumerateObject())
+            {
+                var sourceName = property.Name;
+                var sourceAttr = new Attribute(sourceName);
+
+                var affinity = property.Value;
+                foreach (var target in affinity.EnumerateObject())
+                {
+                    var targetName = target.Name;
+                    var milliValue = target.Value.GetInt32();
+
+                    switch (milliValue)
+                    {
+                        case 500:
+                            sourceClass.Attack05NameList.Add(targetName);
+                            break;
+                        case 1000:
+                            break;
+                        case 1200:
+                            sourceClass.Attack12NameList.Add(targetName);
+                            break;
+                        case 1500:
+                            sourceClass.Attack15NameList.Add(targetName);
+                            break;
+                        case 2000:
+                            sourceClass.Attack20NameList.Add(targetName);
+                            break;
+
+                        default:
+                            throw new InvalidDataException($"{milliValue}は知らない相性数値です");
+                    }
+                }
+
+                var duplication = result.Any(a => a.Name == sourceName);
+                if (duplication)
+                    throw new InvalidDataException($"{sourceName}のクラスが複数存在します");
+
+                result.Add(sourceClass);
+            }
+
+            // 2. 全てのクラスの相性表をインスタンスに変換
+            foreach (var klass in result)
+            {
+                klass.UpdateAttackClass(result);
+            }
+
+            return result;
+        }
+
+        public Task ExportAttributeAsync(IEnumerable<Attribute> attributes)
+        {
+            throw new InvalidOperationException("AtlasAcademyでExportは実装できません");
         }
         #endregion
     }
