@@ -39,52 +39,52 @@ namespace Bhaldeas.Core.Classes
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack05Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack05NameList { get; init; } = new List<string>();
+        public List<string> Attack05NameList { get; init; } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が0.5倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Class> Attack05List { get; } = new List<Class>();
+        public List<Class> Attack05List { get; } = [];
 
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.2倍になるクラスの名前リスト
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack12Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack12NameList { get; init; } = new List<string>();
+        public List<string> Attack12NameList { get; init; } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.2倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Class> Attack12List { get; } = new List<Class>();
+        public List<Class> Attack12List { get; } = [];
 
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.5倍になるクラスの名前リスト
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack15Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack15NameList { get; init;  } = new List<string>();
+        public List<string> Attack15NameList { get; init; } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.5倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Class> Attack15List { get; } = new List<Class>();
+        public List<Class> Attack15List { get; } = [];
 
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が2.0倍になるクラスの名前リスト
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack20Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack20NameList { get; init;  } = new List<string>();
+        public List<string> Attack20NameList { get; init;  } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が2.0倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Class> Attack20List { get; } = new List<Class>();
+        public List<Class> Attack20List { get; } = [];
 
         public Class(string name)
         {

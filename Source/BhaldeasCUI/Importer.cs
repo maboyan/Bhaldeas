@@ -50,7 +50,7 @@ namespace BhaldeasCUI
                     return await importAttributeAsync(path);
 
                 case ImportMode.Servant:
-                    throw new NotImplementedException();
+                    return await importServantsAsync(path);
             }
 
             throw new NotImplementedException(Mode.ToString());
@@ -62,12 +62,12 @@ namespace BhaldeasCUI
             try
             {
                 var aa = new AtlasAcademy();
-                await db.ImportClasses(aa);
+                await db.ImportClassesAsync(aa);
                 
                 // ImportしたものをJSONで保存
                 var local = new LocalFile()
                 {
-                    FilePath = path
+                    ClassFilePath = path
                 };
                 await local.ExportClassAsync(db.Classes);
             }
@@ -86,14 +86,40 @@ namespace BhaldeasCUI
             try
             {
                 var aa = new AtlasAcademy();
-                await db.ImportAttributes(aa);
+                await db.ImportAttributesAsync(aa);
 
                 // ImportしたものをJSONで保存
                 var local = new LocalFile()
                 {
-                    FilePath = path
+                    AttributeFilePath = path
                 };
                 await local.ExportAttributeAsync(db.Attributes);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 1;
+            }
+
+            return 0;
+        }
+
+        private async Task<int> importServantsAsync(string path)
+        {
+            var db = new Database();
+            try
+            {
+                var aa = new AtlasAcademy();
+                await db.ImportClassesAsync(aa);
+                await db.ImportAttributesAsync(aa);
+                await db.ImportServantsAsync(aa);
+
+                // ImportしたものをJSONで保存
+                var local = new LocalFile()
+                {
+                    ServantFilePath = path
+                };
+                await local.ExportServantAsync(db.Servants);
             }
             catch (Exception ex)
             {

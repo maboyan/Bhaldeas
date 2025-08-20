@@ -16,9 +16,9 @@ namespace Bhaldeas.Core
     /// </summary>
     public class Database
     {
-        public List<Servant> Servants { get; set; } = new List<Servant>();
-        public List<Class> Classes { get; set; } = new List<Class>();
-        public List<Attribute> Attributes { get; set; } = new List<Attribute>();
+        public List<Servant> Servants { get; set; } = [];
+        public List<Class> Classes { get; set; } = [];
+        public List<Attribute> Attributes { get; set; } = [];
 
         #region クラス
         /// <summary>
@@ -27,7 +27,7 @@ namespace Bhaldeas.Core
         /// <param name="importer">AtlasAcademyだとネットから情報を持ってくるしLocalFileだとローカルのJSONから情報を取得する</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task ImportClasses(IClassImporter importer)
+        public async Task ImportClassesAsync(IClassImporter importer)
         {
             if (importer == null)
                 throw new ArgumentNullException(nameof(importer));
@@ -43,7 +43,7 @@ namespace Bhaldeas.Core
         /// <param name="exporter">実質LocalFileしか指定されないはず</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task ExportClasses(IClassImporter exporter)
+        public async Task ExportClassesAsync(IClassImporter exporter)
         {
             if (exporter == null)
                 throw new ArgumentNullException(nameof(exporter));
@@ -59,7 +59,7 @@ namespace Bhaldeas.Core
         /// <param name="importer">AtlasAcademyだとネットから情報を持ってくるしLocalFileだとローカルのJSONから情報を取得する</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task ImportAttributes(IAttributeImporter importer)
+        public async Task ImportAttributesAsync(IAttributeImporter importer)
         {
             if (importer == null)
                 throw new ArgumentNullException(nameof(importer));
@@ -75,12 +75,44 @@ namespace Bhaldeas.Core
         /// <param name="exporter">実質LocalFileしか指定されないはず</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task ExportAttributes(IAttributeImporter exporter)
+        public async Task ExportAttributesAsync(IAttributeImporter exporter)
         {
             if (exporter == null)
                 throw new ArgumentNullException(nameof(exporter));
 
             await exporter.ExportAttributeAsync(Attributes);
+        }
+        #endregion
+
+        #region サーヴァント
+        /// <summary>
+        /// サーヴァント情報を取得
+        /// </summary>
+        /// <param name="importer">AtlasAcademyだとネットから情報を持ってくるしLocalFileだとローカルのJSONから情報を取得する</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task ImportServantsAsync(IServantImporter importer)
+        {
+            if (importer == null)
+                throw new ArgumentNullException(nameof(importer));
+
+            var servants = await importer.ImportServantAsync(Classes, Attributes);
+            Servants.Clear();
+            Servants.AddRange(servants);
+        }
+
+        /// <summary>
+        /// サーヴァント情報を出力
+        /// </summary>
+        /// <param name="exporter">実質LocalFileしか指定されないはず</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task ExportServantsAsync(IServantImporter exporter)
+        {
+            if (exporter == null)
+                throw new ArgumentNullException(nameof(exporter));
+
+            await exporter.ExportServantAsync(Servants);
         }
         #endregion
     }

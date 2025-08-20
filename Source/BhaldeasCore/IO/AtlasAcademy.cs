@@ -17,17 +17,13 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
     /// からAPIを叩いて情報を取得するクラス
     /// </summary>
     public class AtlasAcademy
-        : IClassImporter, IAttributeImporter
+        : IClassImporter, IAttributeImporter, IServantImporter
     {
         private static HttpClient client = new HttpClient();
 
         private static readonly string BASE_URL = @"https://api.atlasacademy.io/export";
 
         #region IClassImporter
-        /// <summary>
-        /// サーバンドのクラス情報を取得してクラスの相性リストと攻撃倍率情報を取得する
-        /// </summary>
-        /// <returns></returns>
         public async Task<IEnumerable<Class>> ImportClassAsync()
         {
             // クラス相性を作成
@@ -160,7 +156,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         }
 
         /// <summary>
-        /// サーヴァントのクラス情報を出力することはできないので未実装
+        /// サーバーに対してエクスポートは出来ないため未実装
         /// </summary>
         /// <param name="classes"></param>
         /// <returns></returns>
@@ -247,10 +243,167 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             return result;
         }
 
+        /// <summary>
+        /// サーバーに対してエクスポートは出来ないため未実装
+        /// </summary>
+        /// <param name="attributes"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public Task ExportAttributeAsync(IEnumerable<Attribute> attributes)
         {
             throw new InvalidOperationException("AtlasAcademyでExportは実装できません");
         }
+
         #endregion
+
+        #region IServantImporter
+        public async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes)
+        {
+            var result = new List<Servant>();
+
+            /*  
+             * [
+             *   {
+             *     "id": 2,
+             *     "name": "アルトリア・ペンドラゴン",
+             *     "ruby": "アルトリア・ペンドラゴン",
+             *     "originalName": "アルトリア・ペンドラゴン",
+             *     "battleName": "アルトリア",
+             *     "className": "saber",
+             *     "rarity": 5,
+             *     "cost": 16,
+             *     "attribute": "earth",
+             *     "atkGrowth": [1734, 1838, ...],
+             *     "hpGrowth": [2222, 2364, ...],
+             *     ...
+             *   },
+             *   ...
+             * ]
+             * 
+             * のようなJSONを想定
+             */
+
+            var url = $"{BASE_URL}/JP/nice_servant.json";
+            var res = await client.GetAsync(url);
+            res.EnsureSuccessStatusCode();
+
+            using var content = res.Content;
+            using var stream = await content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+            var root = document.RootElement;
+
+            // 1. サーヴァント属性を文字列ベースで解析
+            foreach (var elem in root.EnumerateArray())
+            {
+                var servant = parseServant(elem);
+                result.Add(servant);
+            }
+
+            // 2. 全ての文字列からインスタンスにできるものをインスタンス化
+            foreach (var servant in result)
+            {
+                servant.UpdateClassReference(allClasses);
+                servant.UpdateAttributeReference(allAttributes);
+            }
+
+            return result;
+        }
+
+        private Servant parseServant(JsonElement elem)
+        {
+            // Servantのプロパティでinitにしたいため一時置き場として作成
+            var propertyDic = new Dictionary<string, JsonElement>();
+
+            // まずはAPIから取得した大量のプロパティから必要なものだけを取得
+            foreach (var property in elem.EnumerateObject())
+            {
+                var key = property.Name;
+                switch(key)
+                {
+                    case "id":
+                        propertyDic["Id"] = property.Value;
+                        break;
+                    case "name":
+                        propertyDic["Name"] = property.Value;
+                        break;
+                    case "ruby":
+                        propertyDic["Yomi"] = property.Value;
+                        break;
+                    case "originalName":
+                        propertyDic["OriginalName"] = property.Value;
+                        break;
+                    case "battleName":
+                        propertyDic["BattleName"] = property.Value;
+                        break;
+
+                    case "rarity":
+                        propertyDic["Rarity"] = property.Value;
+                        break;
+                    case "cost":
+                        propertyDic["Cost"] = property.Value;
+                        break;
+
+                    case "className":
+                        propertyDic["ClassName"] = property.Value;
+                        break;
+                    case "attribute":
+                        propertyDic["AttributeName"] = property.Value;
+                        break;
+
+                    case "hpGrowth":
+                        propertyDic["Hp"] = property.Value;
+                        break;
+                    case "atkGrowth":
+                        propertyDic["Attack"] = property.Value;
+                        break;
+                }
+            }
+
+            // 実際にインスタンスを作成
+            var result = new Servant()
+            {
+                Id = propertyDic["Id"].GetInt32(),
+                Name = propertyDic["Name"].GetString(),
+                Yomi = propertyDic["Yomi"].GetString(),
+                OriginalName = propertyDic["OriginalName"].GetString(),
+                BattleName = propertyDic["BattleName"].GetString(),
+
+                Rarity = propertyDic["Rarity"].GetInt32(),
+                Cost = propertyDic["Cost"].GetInt32(),
+
+                ClassName = propertyDic["ClassName"].GetString(),
+                AttributeName = propertyDic["AttributeName"].GetString(),
+
+                Hp = parseIntArray(propertyDic["Hp"]),
+                Attack = parseIntArray(propertyDic["Attack"]),
+            };
+
+            return result;
+        }
+
+        private int[] parseIntArray(JsonElement elem)
+        {
+            var result = new List<int>();
+            foreach (var t in elem.EnumerateArray())
+            {
+                result.Add(t.GetInt32());
+            }
+
+            return result.ToArray();
+        }
+
+
+        /// <summary>
+        /// サーバーに対してエクスポートは出来ないため未実装
+        /// </summary>
+        /// <param name="servants"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task ExportServantAsync(IEnumerable<Servant> servants)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion // IServantImporter
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Bhaldeas.Core.Classes;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bhaldeas.Core.Attributes
 {
+    /// <summary>
+    /// 天地人 星獣を表すクラス
+    /// </summary>
+    [DebuggerDisplay("{Name} {DisplayAttribute}")]
     public class Attribute
     {
         /// <summary>
@@ -28,26 +33,26 @@ namespace Bhaldeas.Core.Attributes
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack09Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack09NameList { get; init; } = new List<string>();
+        public List<string> Attack09NameList { get; init; } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.1倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Attribute> Attack09List { get; } = new List<Attribute>();
+        public List<Attribute> Attack09List { get; } = [];
 
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.1倍になる属性の名前リスト
         /// JSONに保存されるのはこちらなのでJSONを読み込んだときはAttack11Listを作り直す必要がある
         /// </summary>
         [JsonInclude]
-        public List<string> Attack11NameList { get; init; } = new List<string>();
+        public List<string> Attack11NameList { get; init; } = [];
         /// <summary>
         /// 自分が攻撃したときに攻撃倍率が1.1倍になるクラスリスト
         /// JSONには保存されない（循環参照などの関係で処理が面倒）
         /// </summary>
         [JsonIgnore]
-        public List<Attribute> Attack11List { get; } = new List<Attribute>();
+        public List<Attribute> Attack11List { get; } = [];
 
         public Attribute(string name)
         {
