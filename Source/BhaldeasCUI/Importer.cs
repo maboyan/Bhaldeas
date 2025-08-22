@@ -61,7 +61,11 @@ namespace BhaldeasCUI
             var db = new Database();
             try
             {
-                var aa = new AtlasAcademy();
+                var aa = new AtlasAcademyLocal()
+                {
+                    ClassAffinityFilePath = @"cache\NiceClassRelation.json",
+                    ClassAttackRateFilePath = @"cache\NiceClassAttackRate.json",
+                };
                 await db.ImportClassesAsync(aa);
                 
                 // ImportしたものをJSONで保存
@@ -85,7 +89,10 @@ namespace BhaldeasCUI
             var db = new Database();
             try
             {
-                var aa = new AtlasAcademy();
+                var aa = new AtlasAcademyLocal()
+                {
+                    AttributeFilePath = @"cache\NiceAttributeRelation.json",
+                };
                 await db.ImportAttributesAsync(aa);
 
                 // ImportしたものをJSONで保存
@@ -109,7 +116,13 @@ namespace BhaldeasCUI
             var db = new Database();
             try
             {
-                var aa = new AtlasAcademy();
+                var aa = new AtlasAcademyLocal()
+                {
+                    ClassAffinityFilePath = @"cache\NiceClassRelation.json",
+                    ClassAttackRateFilePath = @"cache\NiceClassAttackRate.json",
+                    AttributeFilePath = @"cache\NiceAttributeRelation.json",
+                    ServantFilePath = @"cache\nice_servant.json",
+                };
                 await db.ImportClassesAsync(aa);
                 await db.ImportAttributesAsync(aa);
                 await db.ImportServantsAsync(aa);

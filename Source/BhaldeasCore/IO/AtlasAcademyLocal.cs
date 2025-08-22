@@ -14,40 +14,24 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 {
     /// <summary>
     /// https://api.atlasacademy.io/docs
-    /// からAPIを叩いて情報を取得するクラス
+    /// から取得したJSONのキャッシュファイルを扱うクラス
     /// </summary>
-    public class AtlasAcademy
+    public class AtlasAcademyLocal
         : AtlasAcademyBase
     {
-        private static HttpClient client = new HttpClient();
-
-        private static readonly string BASE_URL = @"https://api.atlasacademy.io/export";
-
         #region IClassImporter
+        public string ClassAffinityFilePath { get; set; }
+        public string ClassAttackRateFilePath { get; set; }
+
         public override async Task<IEnumerable<Class>> ImportClassAsync()
         {
             // クラス相性を作成
-            IEnumerable<Class> result = null;
-            {
-                var url = $"{BASE_URL}/JP/NiceClassRelation.json";
-                var res = await client.GetAsync(url);
-                res.EnsureSuccessStatusCode();
-
-                using var content = res.Content;
-                using var stream = await content.ReadAsStreamAsync();
-                result = await ReadClassAffinityAsync(stream);
-            }
+            using var affinityStream = new FileStream(ClassAffinityFilePath, FileMode.Open);
+            var result = await ReadClassAffinityAsync(affinityStream);
 
             // クラス攻撃力補正を作成
-            {
-                var url = $"{BASE_URL}/JP/NiceClassAttackRate.json";
-                var res = await client.GetAsync(url);
-                res.EnsureSuccessStatusCode();
-
-                using var content = res.Content;
-                using var stream = await content.ReadAsStreamAsync();
-                await ReadClassAttackRateAsync(stream, result);
-            }
+            using var attackRateStream = new FileStream(ClassAttackRateFilePath, FileMode.Open);
+            await ReadClassAttackRateAsync(attackRateStream, result);
 
             return result;
         }
@@ -65,17 +49,12 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         #endregion
 
         #region IAttributeImporter
+        public string AttributeFilePath { get; set; }
+
         public override async Task<IEnumerable<Attribute>> ImportAttributeAsync()
         {
-
-            var url = $"{BASE_URL}/JP/NiceAttributeRelation.json";
-            var res = await client.GetAsync(url);
-            res.EnsureSuccessStatusCode();
-
-            using var content = res.Content;
-            using var stream = await content.ReadAsStreamAsync();
+            using var stream = new FileStream(AttributeFilePath, FileMode.Open);
             var result = await ReadAttributeAsync(stream);
-
             return result;
         }
 
@@ -89,20 +68,15 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         {
             throw new InvalidOperationException("AtlasAcademyでExportは実装できません");
         }
-
         #endregion
 
         #region IServantImporter
+        public string ServantFilePath { get; set; }
+        
         public override async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes)
         {
-            var url = $"{BASE_URL}/JP/nice_servant.json";
-            var res = await client.GetAsync(url);
-            res.EnsureSuccessStatusCode();
-
-            using var content = res.Content;
-            using var stream = await content.ReadAsStreamAsync();
+            using var stream = new FileStream(ServantFilePath, FileMode.Open);
             var result = await ReadServantAsync(stream, allClasses, allAttributes);
-
             return result;
         }
 
@@ -116,7 +90,6 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         {
             throw new NotImplementedException();
         }
-
         #endregion // IServantImporter
     }
 }
