@@ -1,5 +1,6 @@
 ﻿using Bhaldeas.Core.Classes;
 using Bhaldeas.Core.IO;
+using Bhaldeas.Core.Traits;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
 
 namespace Bhaldeas.Core.Servants.DatabaseIO
@@ -73,10 +75,10 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         #region IServantImporter
         public string ServantFilePath { get; set; }
         
-        public override async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes)
+        public override async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes, IEnumerable<Trait> allTraits)
         {
             using var stream = new FileStream(ServantFilePath, FileMode.Open);
-            var result = await ReadServantAsync(stream, allClasses, allAttributes);
+            var result = await ReadServantAsync(stream, allClasses, allAttributes, allTraits);
             return result;
         }
 
@@ -91,5 +93,27 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             throw new NotImplementedException();
         }
         #endregion // IServantImporter
+
+        #region ITraitImporter
+        public string TraitFilePath { get; set; }
+        
+        public async override Task<IEnumerable<Trait>> ImportTraitAsync()
+        {
+            using var stream = new FileStream(TraitFilePath, FileMode.Open);
+            var result = await ReadTraitAsync(stream);
+            return result;
+        }
+
+        /// <summary>
+        /// サーバーに対してエクスポートは出来ないため未実装
+        /// </summary>
+        /// <param name="servants"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task ExportTraitAsync(IEnumerable<Trait> traits)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion // ITraitImporter
     }
 }

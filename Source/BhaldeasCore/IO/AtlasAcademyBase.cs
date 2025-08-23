@@ -1,5 +1,6 @@
 ﻿using Bhaldeas.Core.Classes;
 using Bhaldeas.Core.IO;
+using Bhaldeas.Core.Traits;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
     /// からAPIを叩いて情報を取得するクラス
     /// </summary>
     public abstract class AtlasAcademyBase
-        : IClassImporter, IAttributeImporter, IServantImporter
+        : IClassImporter, IAttributeImporter, IServantImporter, ITraitImporter
     {
         #region IClassImporter
         public abstract Task<IEnumerable<Class>> ImportClassAsync();
@@ -207,10 +208,10 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         #endregion
 
         #region IServantImporter
-        public abstract Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes);
+        public abstract Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes, IEnumerable<Trait> allTraits);
         public abstract Task ExportServantAsync(IEnumerable<Servant> servants);
 
-        public async Task<IEnumerable<Servant>> ReadServantAsync(Stream stream, IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes)
+        public async Task<IEnumerable<Servant>> ReadServantAsync(Stream stream, IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes, IEnumerable<Trait> allTraits)
         {
             var result = new List<Servant>();
 
@@ -251,6 +252,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             {
                 servant.UpdateClassReference(allClasses);
                 servant.UpdateAttributeReference(allAttributes);
+                servant.UpdateTraitsReference(allTraits);
             }
 
             return result;
@@ -296,6 +298,9 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
                     case "attribute":
                         propertyDic["AttributeName"] = property.Value;
                         break;
+                    case "traits":
+                        propertyDic["Traits"] = property.Value;
+                        break;
 
                     case "hpGrowth":
                         propertyDic["Hp"] = property.Value;
@@ -320,6 +325,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
                 ClassName = propertyDic["ClassName"].GetString(),
                 AttributeName = propertyDic["AttributeName"].GetString(),
+                Traits = parseTraitArray(propertyDic["Traits"]),
 
                 Hp = parseIntArray(propertyDic["Hp"]),
                 Attack = parseIntArray(propertyDic["Attack"]),
@@ -338,6 +344,79 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
             return result.ToArray();
         }
+
+        private KeyValuePair<int, string>[] parseTraitArray(JsonElement elem)
+        {
+            var result = new List<KeyValuePair<int, string>>();
+            foreach (var item in elem.EnumerateArray())
+            {
+                int? id = null;
+                string name = null;
+                foreach (var property in item.EnumerateObject())
+                {
+                    switch(property.Name)
+                    {
+                        case "id":
+                            id = property.Value.GetInt32();
+                            break;
+                        case "name":
+                            name = property.Value.GetString();
+                            break;
+                    }
+                }
+
+                // idとnameが存在するObjectなのでよかった
+                if (id != null && name != null)
+                {
+                    result.Add(new KeyValuePair<int, string>((int)id, name));
+                    continue;
+                }
+
+                // なにかJSONフォーマット変わっている
+                Console.WriteLine($"unknown trait array element {item}");
+
+            }
+
+            return result.ToArray();
+
+        }
         #endregion // IServantImporter
+
+        #region ITraitImporter
+        public async Task<IEnumerable<Trait>> ReadTraitAsync(Stream stream)
+        {
+            var result = new List<Trait>();
+            
+            /*
+             * {
+             *   "1": "genderMale",
+             *   "2": "genderFemale",
+             *   ...
+             * }
+             * 
+             * のようなJSONを想定
+             */
+
+            using var document = await JsonDocument.ParseAsync(stream);
+            var root = document.RootElement;
+
+            foreach (var property in root.EnumerateObject())
+            {
+                var id = int.Parse(property.Name);
+                var name = property.Value.GetString();
+
+                result.Add(new Trait()
+                {
+                    Id = id,
+                    Name = name,
+                });
+            }
+
+            return result;
+        }
+
+        public abstract Task<IEnumerable<Trait>> ImportTraitAsync();
+        public abstract Task ExportTraitAsync(IEnumerable<Trait> traits);
+        #endregion // ITraitImporter
     }
 }

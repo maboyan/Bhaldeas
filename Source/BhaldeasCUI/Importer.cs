@@ -15,6 +15,7 @@ namespace BhaldeasCUI
 
         Class,
         Attribute,
+        Trait,
         Servant,
     }
 
@@ -48,6 +49,9 @@ namespace BhaldeasCUI
 
                 case ImportMode.Attribute:
                     return await importAttributeAsync(path);
+                
+                case ImportMode.Trait:
+                    return await importTraitAsync(path);
 
                 case ImportMode.Servant:
                     return await importServantsAsync(path);
@@ -111,6 +115,33 @@ namespace BhaldeasCUI
             return 0;
         }
 
+        private async Task<int> importTraitAsync(string path)
+        {
+            var db = new Database();
+            try
+            {
+                var aa = new AtlasAcademyLocal()
+                {
+                    TraitFilePath = @"cache\nice_trait.json",
+                };
+                await db.ImportTraitAsync(aa);
+
+                // ImportしたものをJSONで保存
+                var local = new LocalFile()
+                {
+                    TraitFilePath = path
+                };
+                await local.ExportTraitAsync(db.Traits);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 1;
+            }
+
+            return 0;
+        }
+
         private async Task<int> importServantsAsync(string path)
         {
             var db = new Database();
@@ -121,10 +152,12 @@ namespace BhaldeasCUI
                     ClassAffinityFilePath = @"cache\NiceClassRelation.json",
                     ClassAttackRateFilePath = @"cache\NiceClassAttackRate.json",
                     AttributeFilePath = @"cache\NiceAttributeRelation.json",
+                    TraitFilePath = @"cache\nice_trait.json",
                     ServantFilePath = @"cache\nice_servant.json",
                 };
                 await db.ImportClassesAsync(aa);
                 await db.ImportAttributesAsync(aa);
+                await db.ImportTraitAsync(aa);
                 await db.ImportServantsAsync(aa);
 
                 // ImportしたものをJSONで保存

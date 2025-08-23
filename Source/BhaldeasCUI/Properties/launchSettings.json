@@ -2,7 +2,7 @@
   "profiles": {
     "BhaldeasCUI": {
       "commandName": "Project",
-      "commandLineArgs": "-m Import -d Servant -o servants.json"
+      "commandLineArgs": "-m Import -d Servant -o servant.json"
     }
   }
 }

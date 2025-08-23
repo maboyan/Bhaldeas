@@ -1,6 +1,7 @@
 ﻿using Bhaldeas.Core.Classes;
 using Bhaldeas.Core.IO;
 using Bhaldeas.Core.Servants;
+using Bhaldeas.Core.Traits;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace Bhaldeas.Core
         public List<Servant> Servants { get; set; } = [];
         public List<Class> Classes { get; set; } = [];
         public List<Attribute> Attributes { get; set; } = [];
+        public List<Trait> Traits { get; set; } = [];
 
         #region クラス
         /// <summary>
@@ -84,6 +86,38 @@ namespace Bhaldeas.Core
         }
         #endregion
 
+        #region 特性
+        /// <summary>
+        /// 特性情報を取得
+        /// </summary>
+        /// <param name="importer">AtlasAcademyだとネットから情報を持ってくるしLocalFileだとローカルのJSONから情報を取得する</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task ImportTraitAsync(ITraitImporter importer)
+        {
+            if (importer == null)
+                throw new ArgumentNullException(nameof(importer));
+
+            var traits = await importer.ImportTraitAsync();
+            Traits.Clear();
+            Traits.AddRange(traits);
+        }
+
+        /// <summary>
+        /// 特性情報を出力
+        /// </summary>
+        /// <param name="exporter">実質LocalFileしか指定されないはず</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task ExportTraitAsync(ITraitImporter exporter)
+        {
+            if (exporter == null)
+                throw new ArgumentNullException(nameof(exporter));
+
+            await exporter.ExportTraitAsync(Traits);
+        }
+        #endregion
+
         #region サーヴァント
         /// <summary>
         /// サーヴァント情報を取得
@@ -96,7 +130,7 @@ namespace Bhaldeas.Core
             if (importer == null)
                 throw new ArgumentNullException(nameof(importer));
 
-            var servants = await importer.ImportServantAsync(Classes, Attributes);
+            var servants = await importer.ImportServantAsync(Classes, Attributes, Traits);
             Servants.Clear();
             Servants.AddRange(servants);
         }

@@ -1,5 +1,6 @@
 ﻿using Bhaldeas.Core.Classes;
 using Bhaldeas.Core.IO;
+using Bhaldeas.Core.Traits;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
 
 namespace Bhaldeas.Core.Servants.DatabaseIO
@@ -93,7 +95,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         #endregion
 
         #region IServantImporter
-        public override async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes)
+        public override async Task<IEnumerable<Servant>> ImportServantAsync(IEnumerable<Class> allClasses, IEnumerable<Attribute> allAttributes, IEnumerable<Trait> allTraits)
         {
             var url = $"{BASE_URL}/JP/nice_servant.json";
             var res = await client.GetAsync(url);
@@ -101,7 +103,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
             using var content = res.Content;
             using var stream = await content.ReadAsStreamAsync();
-            var result = await ReadServantAsync(stream, allClasses, allAttributes);
+            var result = await ReadServantAsync(stream, allClasses, allAttributes, allTraits);
 
             return result;
         }
@@ -116,7 +118,32 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
         {
             throw new NotImplementedException();
         }
-
         #endregion // IServantImporter
+
+        #region ITraitImporter
+        public override async Task<IEnumerable<Trait>> ImportTraitAsync()
+        {
+            var url = $"{BASE_URL}/JP/nice_trait.json";
+            var res = await client.GetAsync(url);
+            res.EnsureSuccessStatusCode();
+
+            using var content = res.Content;
+            using var stream = await content.ReadAsStreamAsync();
+            var result = await ReadTraitAsync(stream);
+
+            return result;
+        }
+
+        /// <summary>
+        /// サーバーに対してエクスポートは出来ないため未実装
+        /// </summary>
+        /// <param name="traits"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Task ExportTraitAsync(IEnumerable<Trait> traits)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion // ITraitImporter
     }
 }

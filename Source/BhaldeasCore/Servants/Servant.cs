@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
-using Bhaldeas.Core.Classes;
+﻿using Bhaldeas.Core.Classes;
+using Bhaldeas.Core.Traits;
+using System.Diagnostics;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
 
 namespace Bhaldeas.Core.Servants
@@ -44,6 +46,22 @@ namespace Bhaldeas.Core.Servants
         [JsonIgnore]
         public Attribute Attribute { get; set; } = null;
 
+        /// <summary>
+        /// サーヴァント情報に記録されているIDと名前の組
+        /// </summary>
+        [JsonInclude]
+        public KeyValuePair<int, string>[] Traits { get; init; }
+        /// <summary>
+        /// AtlasAcademyのTrait mappingに載っていたIDから割り出した特性
+        /// </summary>
+        [JsonIgnore]
+        public Trait[] KnownTraits { get; set; } = null;
+        /// <summary>
+        /// AtlasAcademyのTrait mappingに載っていなかった特性
+        /// </summary>
+        [JsonIgnore]
+        public KeyValuePair<int, string>[] UnknownTraits { get; set; } = null;
+
         [JsonInclude]
         public int[] Hp { get; init; } = new int[LEVEL_MAX];
         
@@ -72,6 +90,31 @@ namespace Bhaldeas.Core.Servants
                 return;
 
             Attribute = allAttributes.FirstOrDefault(a => a.Name == AttributeName);
+        }
+
+        /// <summary>
+        /// TraitIdsから特性インスタンスを設定する
+        /// </summary>
+        /// <param name="allTraits"></param>
+        public void UpdateTraitsReference(IEnumerable<Trait> allTraits)
+        {
+            var result = new List<Trait>();
+            var unknownList = new List<KeyValuePair<int, string>>();
+            foreach(var trait in Traits)
+            {
+                var t = allTraits.FirstOrDefault(a => a.Id == trait.Key);
+                if (t == null)
+                {
+                    Console.WriteLine($"UpdateTraitsReference: <{trait.Key}, {trait.Value}> unknown trait id");
+                    unknownList.Add(trait);
+                    continue;
+                }
+
+                result.Add(t);
+            }
+
+            KnownTraits = result.ToArray();
+            UnknownTraits = unknownList.ToArray();
         }
     }
 }
