@@ -11,8 +11,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
+using Bhaldeas.Core.Servants;
 
-namespace Bhaldeas.Core.Servants.DatabaseIO
+namespace Bhaldeas.Core.IO
 {
     /// <summary>
     /// https://api.atlasacademy.io/docs

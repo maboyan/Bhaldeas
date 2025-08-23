@@ -11,8 +11,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
+using Bhaldeas.Core.Servants;
 
-namespace Bhaldeas.Core.Servants.DatabaseIO
+namespace Bhaldeas.Core.IO
 {
     /// <summary>
     /// https://api.atlasacademy.io/docs
@@ -21,7 +22,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
     public class AtlasAcademy
         : AtlasAcademyBase
     {
-        private static HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new();
 
         private static readonly string BASE_URL = @"https://api.atlasacademy.io/export";
 

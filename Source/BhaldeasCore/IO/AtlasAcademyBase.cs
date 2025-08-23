@@ -10,8 +10,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
+using Bhaldeas.Core.Servants;
 
-namespace Bhaldeas.Core.Servants.DatabaseIO
+namespace Bhaldeas.Core.IO
 {
     /// <summary>
     /// https://api.atlasacademy.io/docs
@@ -243,7 +244,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             // 1. サーヴァント属性を文字列ベースで解析
             foreach (var elem in root.EnumerateArray())
             {
-                var servant = parseServant(elem);
+                var servant = ParseServant(elem);
                 result.Add(servant);
             }
 
@@ -258,7 +259,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             return result;
         }
 
-        private Servant parseServant(JsonElement elem)
+        private Servant ParseServant(JsonElement elem)
         {
             // Servantのプロパティでinitにしたいため一時置き場として作成
             var propertyDic = new Dictionary<string, JsonElement>();
@@ -325,16 +326,16 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
 
                 ClassName = propertyDic["ClassName"].GetString(),
                 AttributeName = propertyDic["AttributeName"].GetString(),
-                Traits = parseTraitArray(propertyDic["Traits"]),
+                Traits = ParseTraitArray(propertyDic["Traits"]),
 
-                Hp = parseIntArray(propertyDic["Hp"]),
-                Attack = parseIntArray(propertyDic["Attack"]),
+                Hp = ParseIntArray(propertyDic["Hp"]),
+                Attack = ParseIntArray(propertyDic["Attack"]),
             };
 
             return result;
         }
 
-        private int[] parseIntArray(JsonElement elem)
+        private int[] ParseIntArray(JsonElement elem)
         {
             var result = new List<int>();
             foreach (var t in elem.EnumerateArray())
@@ -345,7 +346,7 @@ namespace Bhaldeas.Core.Servants.DatabaseIO
             return result.ToArray();
         }
 
-        private KeyValuePair<int, string>[] parseTraitArray(JsonElement elem)
+        private KeyValuePair<int, string>[] ParseTraitArray(JsonElement elem)
         {
             var result = new List<KeyValuePair<int, string>>();
             foreach (var item in elem.EnumerateArray())

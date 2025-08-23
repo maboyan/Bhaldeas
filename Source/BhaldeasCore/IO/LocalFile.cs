@@ -13,12 +13,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Attribute = Bhaldeas.Core.Attributes.Attribute;
 
-namespace Bhaldeas.Core.DatabaseIO
+namespace Bhaldeas.Core.IO
 {
     public class LocalFile
         : IClassImporter, IAttributeImporter, IServantImporter, ITraitImporter
     {
-        private static readonly JsonSerializerOptions s_serializeOption = new JsonSerializerOptions()
+        private static readonly JsonSerializerOptions s_serializeOption = new()
         {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true,

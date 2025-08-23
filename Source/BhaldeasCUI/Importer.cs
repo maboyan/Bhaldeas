@@ -1,6 +1,5 @@
 ﻿using Bhaldeas.Core;
-using Bhaldeas.Core.DatabaseIO;
-using Bhaldeas.Core.Servants.DatabaseIO;
+using Bhaldeas.Core.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,28 +38,19 @@ namespace BhaldeasCUI
         /// <exception cref="NotImplementedException"></exception>
         public async Task<int> ImportAsync(string path)
         {
-            switch(Mode)
+            return Mode switch
             {
-                case ImportMode.None:
-                    return 0;
-
-                case ImportMode.Class:
-                    return await importClassAsync(path);
-
-                case ImportMode.Attribute:
-                    return await importAttributeAsync(path);
-                
-                case ImportMode.Trait:
-                    return await importTraitAsync(path);
-
-                case ImportMode.Servant:
-                    return await importServantsAsync(path);
-            }
-
+                ImportMode.None         => throw new NotImplementedException(Mode.ToString()),
+                ImportMode.Class        => await ImportClassAsync(path),
+                ImportMode.Attribute    => await ImportAttributeAsync(path),
+                ImportMode.Trait        => await ImportTraitAsync(path),
+                ImportMode.Servant      => await ImportServantsAsync(path),
+                _                       => throw new NotImplementedException(Mode.ToString()),
+            };
             throw new NotImplementedException(Mode.ToString());
         }
 
-        private async Task<int> importClassAsync(string path)
+        private async Task<int> ImportClassAsync(string path)
         {
             var db = new Database();
             try
@@ -88,7 +78,7 @@ namespace BhaldeasCUI
             return 0;
         }
 
-        private async Task<int> importAttributeAsync(string path)
+        private async Task<int> ImportAttributeAsync(string path)
         {
             var db = new Database();
             try
@@ -115,7 +105,7 @@ namespace BhaldeasCUI
             return 0;
         }
 
-        private async Task<int> importTraitAsync(string path)
+        private async Task<int> ImportTraitAsync(string path)
         {
             var db = new Database();
             try
@@ -142,7 +132,7 @@ namespace BhaldeasCUI
             return 0;
         }
 
-        private async Task<int> importServantsAsync(string path)
+        private async Task<int> ImportServantsAsync(string path)
         {
             var db = new Database();
             try
